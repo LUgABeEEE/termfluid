@@ -54,6 +54,27 @@ class CliTests(unittest.TestCase):
         self.assertEqual(len(lines), 24)
         self.assertTrue(all(set(line) <= ALLOWED for line in lines))
 
+    def test_headless_default_size(self):
+        result = run("--headless", "0")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        lines = result.stdout.splitlines()
+        self.assertEqual(len(lines), 30)
+        self.assertEqual({len(line) for line in lines}, {100})
+
+    def test_headless_rejects_zero_size(self):
+        for flag in ("--width", "--height"):
+            with self.subTest(flag=flag):
+                result = run("--headless", "0", flag, "0")
+                self.assertEqual(result.returncode, 2, result.stderr)
+                self.assertIn("at least 1", result.stderr)
+
+    def test_headless_rejects_negative_size(self):
+        for flag in ("--width", "--height"):
+            with self.subTest(flag=flag):
+                result = run("--headless", "0", flag, "-5")
+                self.assertEqual(result.returncode, 2, result.stderr)
+                self.assertIn("at least 1", result.stderr)
+
     def test_interactive_requires_terminal(self):
         result = subprocess.run(
             [sys.executable, SCRIPT],
