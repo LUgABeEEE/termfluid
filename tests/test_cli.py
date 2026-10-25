@@ -1,6 +1,7 @@
 import os
 import subprocess
 import sys
+import tempfile
 import unittest
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -53,6 +54,18 @@ class CliTests(unittest.TestCase):
         lines = result.stdout.splitlines()
         self.assertEqual(len(lines), 24)
         self.assertTrue(all(set(line) <= ALLOWED for line in lines))
+
+    def test_headless_snapshot(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "frame.txt")
+            result = run("--headless", "20", "--width", "40", "--height", "12", "--snapshot", path)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertTrue(os.path.exists(path), "snapshot file was not written")
+            with open(path, encoding="utf-8") as handle:
+                written = handle.read().splitlines()
+            self.assertEqual(written[:12], result.stdout.splitlines())
+            self.assertTrue(written[12].startswith("# particles="))
+            self.assertEqual(len(written), 13)
 
     def test_headless_default_size(self):
         result = run("--headless", "0")
