@@ -91,7 +91,7 @@ python3 termfluid.py --help
 --force F             鼠标斥力强度（默认 240）
 --radius R            斥力半径，模拟单位；2 单位约等于 1 行（默认 14）
 --duration SECONDS    运行指定秒数后自动退出
---snapshot FILE       退出时把最后一帧（字符画 + 状态栏）写到文件
+--snapshot FILE       退出时（或 --headless 结束时）把最后一帧（字符画 + 状态栏）写到文件
 --demo                自动移动斥力中心，不需要鼠标（录制/演示用）
 --no-mouse            不开启终端鼠标上报（只用键盘）
 --headless STEPS      无 TTY：先模拟 STEPS 帧，再输出一张字符画
@@ -105,6 +105,7 @@ python3 termfluid.py --help
 python3 termfluid.py --headless 0   --width 100 --height 30   # 初始：液体全在顶部
 python3 termfluid.py --headless 180 --width 100 --height 30   # 3 秒后：落到底部
 python3 termfluid.py --headless 240 --demo --width 100 --height 30
+python3 termfluid.py --headless 180 --width 100 --height 30 --snapshot /tmp/frame.txt  # 同时落盘
 ~~~
 
 ### 自动演示

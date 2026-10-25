@@ -213,13 +213,16 @@ def run_headless(args):
             if i and i % 180 == 0:
                 fluid.click()
         fluid.step(SIM_DT)
-    print("\n".join(fluid.render()))
+    lines = fluid.render()
+    print("\n".join(lines))
     stats = fluid.stats()
-    print(
+    status = (
         "# particles={n} mean_y={mean_y_frac:.3f} max_speed={max_speed:.1f} "
-        "nan={nan} outside={outside}".format(**stats),
-        file=sys.stderr,
+        "nan={nan} outside={outside}".format(**stats)
     )
+    print(status, file=sys.stderr)
+    if args.snapshot:
+        _write_snapshot(args.snapshot, lines + [status])
     return 0
 
 
@@ -456,12 +459,17 @@ def run_interactive(args):
             pass
 
     if args.snapshot and snapshot_lines is not None:
-        try:
-            with open(args.snapshot, "w", encoding="utf-8") as handle:
-                handle.write("\n".join(snapshot_lines) + "\n")
-        except OSError as exc:
-            print("termfluid: could not write snapshot: {}".format(exc), file=sys.stderr)
+        _write_snapshot(args.snapshot, snapshot_lines)
     return 0
+
+
+def _write_snapshot(path, lines):
+    """Write the frame plus status line to *path*, reporting failures non-fatally."""
+    try:
+        with open(path, "w", encoding="utf-8") as handle:
+            handle.write("\n".join(lines) + "\n")
+    except OSError as exc:
+        print("termfluid: could not write snapshot: {}".format(exc), file=sys.stderr)
 
 
 def _positive_int(text):
