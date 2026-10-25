@@ -1,0 +1,5 @@
+__pycache__/
+*.pyc
+snapshot_*.txt
+stty_*.txt
+tools/still_*.txt
