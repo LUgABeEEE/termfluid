@@ -193,8 +193,8 @@ def demo_target(width, height, t):
 
 
 def run_headless(args):
-    width = args.width or 100
-    height = args.height or 30
+    width = 100 if args.width is None else args.width
+    height = 30 if args.height is None else args.height
     fluid = Fluid(
         width,
         height,
@@ -464,6 +464,17 @@ def run_interactive(args):
     return 0
 
 
+def _positive_int(text):
+    """argparse type: a whole number >= 1 (rejects 0, negatives and junk)."""
+    try:
+        value = int(text)
+    except ValueError:
+        raise argparse.ArgumentTypeError("expected an integer, got {!r}".format(text))
+    if value < 1:
+        raise argparse.ArgumentTypeError("must be at least 1, got {}".format(value))
+    return value
+
+
 def build_parser():
     p = argparse.ArgumentParser(
         prog="termfluid",
@@ -482,8 +493,8 @@ def build_parser():
     p.add_argument("--pipe-input", action="store_true", help=argparse.SUPPRESS)
     p.add_argument("--no-mouse", action="store_true", help="do not enable terminal mouse reporting")
     p.add_argument("--headless", type=int, metavar="STEPS", help="simulate STEPS then print one ASCII frame")
-    p.add_argument("--width", type=int, help="width for --headless")
-    p.add_argument("--height", type=int, help="height for --headless")
+    p.add_argument("--width", type=_positive_int, metavar="COLS", help="width for --headless")
+    p.add_argument("--height", type=_positive_int, metavar="ROWS", help="height for --headless")
     p.add_argument("--version", action="version", version="termfluid " + VERSION)
     return p
 
